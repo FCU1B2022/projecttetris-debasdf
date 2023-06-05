@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
@@ -421,36 +421,77 @@ void logic(Block canvas[CANVAS_HEIGHT][CANVAS_WIDTH], State* state)
 
     state->fallTime += RENDER_DELAY;
 
-    while (state->fallTime >= FALL_DELAY) {
-        state->fallTime -= FALL_DELAY;
+    while (state->fallTime >= FALL_DELAY) 
+    {
+          state->fallTime -= FALL_DELAY;
+          printf("\033[%d;%dH\x1b[1;36mSCORE : %d \x1b[0m\033[%d;%dH", CANVAS_HEIGHT - 3, CANVAS_WIDTH * 2 + 5, state->score, CANVAS_HEIGHT + 5, 0);
+          if (move(canvas, state->x, state->y, state->rotate, state->x, state->y + 1, state->rotate, state->queue[0])) 
+          {
+              state->y++;
+          }
+          else 
+          {
+               state->score += clearLine(canvas);
 
-        if (move(canvas, state->x, state->y, state->rotate, state->x, state->y + 1, state->rotate, state->queue[0])) {
-            state->y++;
-        }
-        else {
-            state->score += clearLine(canvas);
+               state->x = CANVAS_WIDTH / 2;
+               state->y = 0;
+               state->rotate = 0;
+               state->fallTime = 0;
+               state->queue[0] = state->queue[1];
+               state->queue[1] = state->queue[2];
+               state->queue[2] = state->queue[3];
+               state->queue[3] = rand() % 7;
 
-            state->x = CANVAS_WIDTH / 2;
-            state->y = 0;
-            state->rotate = 0;
-            state->fallTime = 0;
-            state->queue[0] = state->queue[1];
-            state->queue[1] = state->queue[2];
-            state->queue[2] = state->queue[3];
-            state->queue[3] = rand() % 7;
-
-            if (!move(canvas, state->x, state->y, state->rotate, state->x, state->y, state->rotate, state->queue[0]))
-            {
-                printf("\033[%d;%dH\x1b[41m GAME OVER \x1b[0m\033[%d;%dH", CANVAS_HEIGHT - 3, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
-                exit(0);
-            }
-        }
+               if (!move(canvas, state->x, state->y, state->rotate, state->x, state->y, state->rotate, state->queue[0]))
+               {
+                  //printf("\033[%d;%dH\x1b[41m GAME OVER \x1b[0m\033[%d;%dH", CANVAS_HEIGHT - 3, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+                  system("cls");
+                  printf("\033[5;1;31m ,----.      ,---.   ,--.   ,--. ,------.          ,-----.  ,--.   ,--. ,------. ,------. \033[m\n");
+                  printf("\033[5;1;33m'  .-./     /  O  \\  |   `.'   | |  .---'         '  .-.  '  \\  `.'  /  |  .---' |  .--. '\033[m\n");
+                  printf("\033[5;1;32m|  | .---. |  .-.  | |  |'.'|  | |  `--,          |  | |  |   \\     /   |  `--,  |  '--'.'\033[m\n");
+                  printf("\033[5;1;34m'  '--'  | |  | |  | |  |   |  | |  `---.         '  '-'  '    \\   /    |  `---. |  |\\  \\ \033[m\n");
+                  printf("\033[5;1;36m `------'  `--' `--' `--'   `--' `------'          `-----'      `-'     `------' `--' '--'\033[m\n");
+                  printf("                                       ");
+                  printf("\033[1;41m YOUR SCORE : %d\033[m\n", state->score);
+                  exit(0);
+               }
+          }
     }
     return;
 }
 
+
+
 int main()
 {
+    printf("\n");
+    printf("\n");
+    printf("\033[5;31m         ::::::::   :::::::::::           :::        :::::::::\033[m\n");
+    printf("\033[5;33m       :+:    :+:      :+:             :+: :+:      :+:    :+:\033[m\n");
+    printf("\033[5;32m      +:+             +:+            +:+   +:+     +:+    +:+\033[m\n");
+    printf("\033[5;34m     +#++:++#++      +#+           +#++:++#++:    +#++:++#:\033[m\n");
+    printf("\033[5;36m           +#+      +#+           +#+     +#+    +#+    +#+\033[m\n");
+    printf("\033[5;35m   #+#    #+#      #+#           #+#     #+#    #+#    #+#\033[m\n");
+    printf("\033[5;31m   ########       ###           ###     ###    ###    ###\033[m\n");
+    printf("\n");
+    printf("\n");
+    printf("        ");
+    printf("\033[1;33;45mPress the number 1 to start the game.\033[m\n");
+    //printf("Press the number 1 to start the game.\n");
+
+    // 檢測鍵盤輸入
+    while (1)
+    {
+        if (_kbhit())  // 檢測是否有鍵盤輸入
+        {
+            char key = _getch();  // 獲取按下的鍵值
+
+            if (key == '1')  // 判斷是否按下數字鍵 1
+            {
+                break;  // 結束循環
+            }
+        }
+    }
     srand(time(NULL));
     State state = {
         .x = CANVAS_WIDTH / 2,
