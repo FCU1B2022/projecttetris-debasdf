@@ -50,7 +50,7 @@ typedef struct {
     int size;
     char rotates[4][4][4];
 }Shape;
-
+//int cd_time;
 typedef struct
 {
     int x;
@@ -58,6 +58,8 @@ typedef struct
     int score;
     int rotate;
     int fallTime;
+    int cd_time;//冷卻時間
+    int ya_time;//YA動畫時間
     ShapeId queue[4];
 }State;
 
@@ -326,6 +328,7 @@ void printCanvas(Block canvas[CANVAS_HEIGHT][CANVAS_WIDTH], State* state)
         printf("|");
         for (int j = 0; j < CANVAS_WIDTH; j++) {
             printf("\033[%dm\u3000", canvas[i][j].color);
+            //printf("\033[%dm\u3000", canvas[i][j].color);
         }
         printf("\033[0m|\n");
     }
@@ -425,6 +428,30 @@ void logic(Block canvas[CANVAS_HEIGHT][CANVAS_WIDTH], State* state)
     {
           state->fallTime -= FALL_DELAY;
           printf("\033[%d;%dH\x1b[1;36mSCORE : %d \x1b[0m\033[%d;%dH", CANVAS_HEIGHT - 3, CANVAS_WIDTH * 2 + 5, state->score, CANVAS_HEIGHT + 5, 0);
+          printf("\033[%d;%dH\x1b[1;36mcd_time : %d \x1b[0m\033[%d;%dH", CANVAS_HEIGHT -2, CANVAS_WIDTH * 2 + 5, state->cd_time, CANVAS_HEIGHT + 5, 0);
+          if (state->ya_time > 0)
+          {
+              printf("\033[%d;%dH\x1b[33m       _    (^)\x1b[0m\033[%d;%dH", CANVAS_HEIGHT - 1, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[33m      (_\\   |_|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT , CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[33m       \\_\\  |_|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT+1, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[33m       _\\_\\,/_|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT+2, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[33m      (`\\(_|`\\|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT+3, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[33m     (`\\,)  \\ \\\x1b[0m\033[%d;%dH", CANVAS_HEIGHT+4, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[33m      \\,)   | |\x1b[0m\033[%d;%dH", CANVAS_HEIGHT+5, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[33m        \\__(__|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT+6, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+          }
+          else 
+          {
+              printf("\033[%d;%dH\x1b[30m         _    (^)\x1b[0m\033[%d;%dH", CANVAS_HEIGHT - 1, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[30m      (_\\   |_|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[30m       \\_\\  |_|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT + 1, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[30m       _\\_\\,/_|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT + 2, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[30m      (`\\(_|`\\|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT + 3, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[30m     (`\\,)  \\ \\\x1b[0m\033[%d;%dH", CANVAS_HEIGHT + 4, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[30m      \\,)   | |\x1b[0m\033[%d;%dH", CANVAS_HEIGHT + 5, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+              printf("\033[%d;%dH\x1b[30m        \\__(__|\x1b[0m\033[%d;%dH", CANVAS_HEIGHT + 6, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
+          }
+          //printf("\033[%d;%dH\x1b[1;36m       _    (^)\x1b[0m\033[%d;%dH", CANVAS_HEIGHT - 3, CANVAS_WIDTH * 2 + 9, CANVAS_HEIGHT + 5, 0);
           if (move(canvas, state->x, state->y, state->rotate, state->x, state->y + 1, state->rotate, state->queue[0])) 
           {
               state->y++;
@@ -446,11 +473,14 @@ void logic(Block canvas[CANVAS_HEIGHT][CANVAS_WIDTH], State* state)
                {
                   //printf("\033[%d;%dH\x1b[41m GAME OVER \x1b[0m\033[%d;%dH", CANVAS_HEIGHT - 3, CANVAS_WIDTH * 2 + 5, CANVAS_HEIGHT + 5, 0);
                   system("cls");
+                  printf("\n");
+                  //printf("\n");
                   printf("\033[5;1;31m ,----.      ,---.   ,--.   ,--. ,------.          ,-----.  ,--.   ,--. ,------. ,------. \033[m\n");
                   printf("\033[5;1;33m'  .-./     /  O  \\  |   `.'   | |  .---'         '  .-.  '  \\  `.'  /  |  .---' |  .--. '\033[m\n");
                   printf("\033[5;1;32m|  | .---. |  .-.  | |  |'.'|  | |  `--,          |  | |  |   \\     /   |  `--,  |  '--'.'\033[m\n");
                   printf("\033[5;1;34m'  '--'  | |  | |  | |  |   |  | |  `---.         '  '-'  '    \\   /    |  `---. |  |\\  \\ \033[m\n");
                   printf("\033[5;1;36m `------'  `--' `--' `--'   `--' `------'          `-----'      `-'     `------' `--' '--'\033[m\n");
+                  printf("\n");
                   printf("                                       ");
                   printf("\033[1;41m YOUR SCORE : %d\033[m\n", state->score);
                   exit(0);
@@ -475,10 +505,11 @@ int main()
     printf("\033[5;31m   ###            ##########        ###            ###    ###       ###########        ########\033[m\n");
     printf("\n");
     printf("\n");
+    printf("                 ");
+    printf("\033[36m ps : Pressing the number 2 can add two points, but with a cd_time. \033[m\n");
     printf("                              ");
     printf("\033[1;33;45mPress the number 1 to start the game.\033[m\n");
     //printf("Press the number 1 to start the game.\n");
-
     // 檢測鍵盤輸入
     while (1)
     {
@@ -500,7 +531,8 @@ int main()
         .rotate = 0,
         .fallTime = 0
     };
-
+    state.cd_time = 0;
+    state.ya_time = 0;
     for (int i = 0; i < 4; i++)
     {
         state.queue[i] = rand() % 7;
@@ -522,6 +554,25 @@ int main()
 
     while (1)
     {
+        if (_kbhit())
+        {
+            char ch = _getch();
+            if (ch == '2' && state.cd_time == 0 )
+            {
+                state.cd_time = 70;
+                state.ya_time = 20;
+                state.score += 2;
+            }
+        }
+        if (state.ya_time > 0)
+        {
+            state.ya_time -= 1;
+            state.cd_time -= 1;
+        }
+        if (state.cd_time > 0)
+        {
+            state.cd_time -= 1;
+        }
         logic(canvas, &state);
         printCanvas(canvas, &state);
         Sleep(100);
